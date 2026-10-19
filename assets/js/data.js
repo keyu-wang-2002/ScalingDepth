@@ -384,6 +384,15 @@ SD.methods = [
     tags: ["attention over depth", "AttnRes family"]
   },
   {
+    id: "msar", name: "Multi-Stream Attention Residuals (MSAR)", family: "aggregation", year: 2026,
+    authors: "Qin, Zhang et al.", venue: "arXiv 2026",
+    arxiv: "2610.13630",
+    link: "https://github.com/jianke0604/MSAR", linkLabel: "Project",
+    formula: "z_l^{(r)} = \\sum_{i<l} \\alpha_{i\\to l}^{(r)}\\,\\mathcal E_{i,r}[v_i],\\; x_l = \\sum_{r=0}^{m-1} g_l^{(r)}\\,z_l^{(r)}",
+    desc: "Expands sources v via identity / multi-scale causal depthwise convolutions E, retrieves per stream with depth-softmax weights alpha, and fuses results with adaptive gates g. Block MSAR expands accumulated single-stream summaries on demand. (Schematic form.)",
+    tags: ["attention over depth", "multi-stream", "causal convolution"]
+  },
+  {
     id: "ldm", name: "Linear Depth Memory (LDM)", family: "aggregation", year: 2026,
     authors: "González-Martínez, Nazari et al.", venue: "arXiv 2026",
     arxiv: "2610.18809",
