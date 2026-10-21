@@ -507,7 +507,11 @@ SD.blogs = [
   { title: "Depth Memory", authors: "Philipp Nazari", date: "2026-10",
     link: "https://phnazari.github.io/blog/2026/depth-memory/",
     note: "A walkthrough of Linear Depth Memory: depth mixing as storage and retrieval, the RLS memory, results and the efficient implementation.",
-    tag: "LDM" }
+    tag: "LDM" },
+  { title: "HC vs mHC for computational depth", authors: "Arya", date: "2026-10",
+    link: "https://aryagxr.com/blogs/hc-mhc-depth/",
+    note: "Exploring hyper-connections and manifold-constrained HC for computational depth: in modded-nanogpt runs at three aspect ratios, mHC loses effective rank in deeper layers while HC keeps more rank and reaches lower loss.",
+    tag: "HC / mHC" }
 ];
 
 /* ---------- News ---------- */
