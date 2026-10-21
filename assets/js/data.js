@@ -401,6 +401,14 @@ SD.methods = [
     desc: "Each layer reads from and writes to a fixed-size linear memory over depth. The memory represents the solution of an online linear regression objective. (Schematic form.)",
     tags: ["memory over depth", "RLS", "fixed-size state"]
   },
+  {
+    id: "dagformer", name: "DAGFormer", family: "aggregation", year: 2026,
+    authors: "Yang, Hao, Zhai", venue: "arXiv 2026",
+    arxiv: "2610.19625",
+    formula: "q_h,\\,k_h,\\,v_h,\\,R_l \\leftarrow \\textstyle\\sum_{j<l} \\alpha^{(l)}_{\\cdot,j}\\,X_j,\\quad \\{\\alpha^{(l)}\\}_{l\\le L} = P_\\phi(\\text{tokens})",
+    desc: "A jointly trained topology predictor reads the tokens and plans the cross-layer graph for the whole model at once: signed weights alpha decide how each layer's queries, keys, values and residual draw on all earlier outputs. Initialised to the vanilla Transformer. (Schematic form.)",
+    tags: ["dynamic weights", "global topology", "DAG"]
+  },
 
   // ---------------- Multi-Stream / Hyper-Connections ----------------
   {
@@ -434,6 +442,15 @@ SD.methods = [
     formula: "H_l\\in\\mathbb R^{n\\times d},\\ n\\uparrow",
     desc: "Expanded Hyper-Connections: scaling the number / capacity of residual streams.",
     tags: ["n streams", "HC family"]
+  },
+  {
+    id: "ihc", name: "Identity Hyper-Connections (iHC)", family: "multistream", year: 2026,
+    authors: "Tencent Hunyuan", venue: "Hy4 preview",
+    date: "2026-08",
+    link: "https://github.com/Tencent-Hunyuan/Hy4-preview", linkLabel: "Model",
+    formula: "H_{l+1} = H_l + \\beta_l(x)\\, F_l\\big(\\alpha_l(x)^{\\top} H_l\\big),\\quad A_l \\equiv I,\\ n=4",
+    desc: "The residual design of Tencent's Hy4 preview. It keeps HC's parallel streams and token-dependent sigmoid read (alpha) and write (beta) gates, but fixes stream mixing to the identity, so every stream keeps a clean skip path. (Schematic form.)",
+    tags: ["n streams", "HC family", "identity mixing"]
   },
   {
     id: "ohc", name: "oHC", family: "multistream", year: 2026,
