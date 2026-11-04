@@ -589,7 +589,11 @@ SD.blogs = [
   { title: "HC vs mHC for computational depth", authors: "Arya", date: "2026-10",
     link: "https://aryagxr.com/blogs/hc-mhc-depth/",
     note: "Exploring hyper-connections and manifold-constrained HC for computational depth: in modded-nanogpt runs at three aspect ratios, mHC loses effective rank in deeper layers while HC keeps more rank and reaches lower loss.",
-    tag: "HC / mHC" }
+    tag: "HC / mHC" },
+  { title: "Beyond Residual Connection", authors: "Purshow", date: "2026-09",
+    link: "https://github.com/Purshow/Purshow_Notes/blob/main/Beyond_Residual/EN/Beyond_Residual_EN.pdf",
+    note: "Notes that start from the Pre-Norm vs Post-Norm trade-off and walk through HC, mHC, iHC, gated residuals, Attention Residuals, xHC and VWN, with a table mapping each design to the recent LLMs that use it.",
+    tag: "HC / AttnRes" }
 ];
 
 /* ---------- News ---------- */
