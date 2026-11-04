@@ -23,7 +23,7 @@ become extra computation.
 
 | Page | Content |
 |---|---|
-| **Residuals** | Searchable collection of 45+ residual, normalization and depth-parametrization designs in 5 families, each with a one-line update rule |
+| **Residuals** | Searchable collection of 55+ residual, normalization and depth-parametrization designs in 5 families, each with a one-line update rule |
 | **Benchmarks** | Controlled evaluations of whether added depth becomes computation (e.g. DepthBench) |
 | **Papers** | Reading list of analysis, theory and systems papers on effective depth |
 | **Tutorials** | Lectures and long-form guides on Transformer architectures, normalization and depth |

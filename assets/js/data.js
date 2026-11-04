@@ -195,6 +195,23 @@ SD.methods = [
     desc: "Stabilises Post-LN Transformers at large learning rates with residual scaling, separate learned scales for the skip and residual branches, and a hidden-state variance regulariser. Links Post-LN gradient vanishing to rank collapse. (Schematic form.)",
     tags: ["Post-LN", "Transformer"]
   },
+  {
+    id: "layerrope", name: "LayerRoPE", family: "norm", year: 2026,
+    authors: "Srivastava, Kanan", venue: "arXiv 2026",
+    arxiv: "2610.09179",
+    link: "https://www.cs.rochester.edu/u/ssrivas9/layer-rope", linkLabel: "Project",
+    formula: "x_{l+1} = x_l + \\gamma_l\\odot F_l\\big(\\mathrm{RMSNorm}_{\\gamma_l}(x_l)\\big),\\quad \\gamma_l = e^{r(l)}\\,R\\big(\\theta(l)\\big)\\,\\gamma",
+    desc: "Replaces every per-layer normalization gain with one shared vector that is scaled and RoPE-style rotated by log-linear functions of depth, acting as an implicit depth position encoding. Reported to beat Pre-, Post-, Peri-Norm and LayerNorm Scaling, and to train at 512 layers. (Schematic form.)",
+    tags: ["Transformer", "curse of depth", "depth encoding"]
+  },
+  {
+    id: "gct", name: "Gauge-Canonical Transformer (GCT)", family: "norm", year: 2026,
+    authors: "Kim, Kawano, Iwasawa, Matsuo", venue: "arXiv 2026",
+    arxiv: "2610.17969",
+    formula: "h_{l+1} = \\mathcal C\\big(h_l + \\alpha_l\\,\\mathcal C(P^{\\perp}_{h_l} F_l(h_l))\\big),\\quad \\mathcal C(x) = x/\\mathrm{RMS}(x),\\ \\alpha_l^{(0)} = 1/\\sqrt{2L}",
+    desc: "From the Neural Dimensional Analysis framework: the residual stream stays RMS-normalized, each branch output loses its component along the current state and is re-normalized, then added with a learnable step initialised at 1/sqrt(2L). Reported to beat Pre-LN and QK-Norm baselines from 51M to 1B.",
+    tags: ["Transformer", "normalized stream", "orthogonal update"]
+  },
 
   // ---------------- Residual Scaling & Init ----------------
   {
@@ -268,6 +285,23 @@ SD.methods = [
     formula: "x_{l+1} = x_l + \\tfrac{1}{L}\\,F_l(x_l),\\quad \\eta,\\ \\lambda,\\ \\epsilon \\ \\text{rescaled with } L",
     desc: "The α = 1 depth parametrization: a 1/L branch multiplier with depth-adjusted LR, weight decay and AdamW ε. Gives depth-wise HP transfer and keeps every layer out of the lazy regime, so more width/depth ratios stay compute-efficient.",
     tags: ["parametrization", "HP transfer", "LLM"]
+  },
+  {
+    id: "review-residuals", name: "Review Residuals", family: "scaling", year: 2026,
+    authors: "Kramer", venue: "arXiv 2026",
+    arxiv: "2606.31859",
+    code: "https://github.com/SixSigmaEngineer/review-residuals",
+    formula: "x_{l+1} = x_l + r_l \\odot F_l(x_l),\\quad r_l=\\sigma\\big(W_r\\,[\\mathrm{RMSNorm}(x_l);\\ \\mathrm{RMSNorm}(F_l(x_l))]\\big)",
+    desc: "A per-channel sigmoid gate on each sublayer update, conditioned on both the current state and the proposed update itself. The skip path keeps coefficient one, unlike the convex Highway form, which fails to train beyond about 20 layers. The gain over standard and Highway residuals appears only at larger scale (590M and 1B).",
+    tags: ["gating", "per-channel", "update-conditioned"]
+  },
+  {
+    id: "sliding-networks", name: "Sliding Networks", family: "scaling", year: 2026,
+    authors: "Zhou, Bordelon", venue: "arXiv 2026",
+    arxiv: "2610.33840",
+    formula: "h_{l+1} = h_l + \\tfrac{\\beta_0\\sqrt{N_{\\text{res}}}}{L\\,N_{\\text{hid}}}\\,W^{\\downarrow}_l\\,\\phi\\big(\\tfrac{1}{\\sqrt{N_{\\text{res}}}}W^{\\uparrow}_l h_l\\big),\\quad \\tfrac{N_{\\text{res}}}{N_{\\text{hid}}L}\\to\\alpha",
+    desc: "A joint width-depth parametrization: residual width over hidden width times depth tends to a constant, with a matching branch scale and a correlated 'Half Copy' initialization. Keeps both maximal feature learning and feature diversity in the infinite-depth limit, which Depth-µP and CompleteP trade off.",
+    tags: ["parametrization", "width-depth scaling"]
   },
 
   // ---------------- Cross-Layer Aggregation ----------------
@@ -409,6 +443,15 @@ SD.methods = [
     desc: "A jointly trained topology predictor reads the tokens and plans the cross-layer graph for the whole model at once: signed weights alpha decide how each layer's queries, keys, values and residual draw on all earlier outputs. Initialised to the vanilla Transformer. (Schematic form.)",
     tags: ["dynamic weights", "global topology", "DAG"]
   },
+  {
+    id: "m3former", name: "M3Former", family: "aggregation", year: 2026,
+    authors: "Han, Chai et al.", venue: "arXiv 2026",
+    arxiv: "2611.02436",
+    code: "https://github.com/Kingchet10/m3former",
+    formula: "x^{r,g}_{l} = \\textstyle\\sum_{j<l} a^{r,g}_{l,j}(x_{l-1})\\,x^{(g)}_j,\\quad r\\in\\{Q,K,V,R\\},\\ g = 1..G",
+    desc: "Multi-Role Multi-Group Mixing: each input role (query, key, value, residual) and each group of channels reads its own token-dependent, signed mixture of all earlier layer outputs. Generalizes MUDDFormer (G = 1) at about 1.4% extra parameters, and starts as an exact residual connection.",
+    tags: ["dynamic weights", "dense", "channel groups"]
+  },
 
   // ---------------- Multi-Stream / Hyper-Connections ----------------
   {
@@ -451,6 +494,31 @@ SD.methods = [
     formula: "H_{l+1} = H_l + \\beta_l(x)\\, F_l\\big(\\alpha_l(x)^{\\top} H_l\\big),\\quad A_l \\equiv I,\\ n=4",
     desc: "The residual design of Tencent's Hy4 preview. It keeps HC's parallel streams and token-dependent sigmoid read (alpha) and write (beta) gates, but fixes stream mixing to the identity, so every stream keeps a clean skip path. (Schematic form.)",
     tags: ["n streams", "HC family", "identity mixing"]
+  },
+  {
+    id: "gated-residual", name: "Gated Residual (GR)", family: "multistream", year: 2026,
+    authors: "Qiu, Wang, Li et al. (Qwen)", venue: "Qwen3.8-Next",
+    arxiv: "2608.30320",
+    formula: "H_{l+1} = H_l + s_l\\, F_l\\big(\\tfrac1n \\mathbf 1^{\\top}(G_l\\odot \\hat H_l)\\big),\\quad \\hat H_l=\\mathrm{RMSNorm}(H_l),\\ G_l\\in(0,1)^{n\\times d}",
+    desc: "The residual design of Qwen3.8-Next. It reads n = 4 branches through a data-dependent, low-rank element-wise sigmoid gate G that replaces the pre-norm. It writes back with one data-dependent scalar per branch (s) and drops the stream-mixing matrix entirely. Slightly ahead of mHC in the paper's ablations while saving one read of the residual state per block. (Schematic form.)",
+    tags: ["n streams", "HC family", "per-channel read", "no mixing"]
+  },
+  {
+    id: "sihc", name: "SiHC", family: "multistream", year: 2026,
+    authors: "Liang, Kou, Xi et al.", venue: "arXiv 2026",
+    arxiv: "2609.33895",
+    code: "https://github.com/tongtongliang/residual-stream-burden",
+    formula: "H_{l+1} = H_l + \\beta_l \\odot F_l\\big(\\mathbf 1^{\\top}(\\alpha_l \\odot H_l)\\big),\\quad \\alpha_l,\\beta_l\\in\\mathbb R^{n\\times d}\\ \\text{static},\\ A_l = I",
+    desc: "Spatially Indexed Hyper-Connections for pixel diffusion transformers. Each of the n streams holds one sub-patch of a computational patch. Static per-channel read (alpha) and write (beta) maps wrap every attention and MLP sublayer, and stream mixing is fixed to the identity. This widens residual bandwidth without adding tokens.",
+    tags: ["n streams", "HC family", "per-channel", "diffusion"]
+  },
+  {
+    id: "hires", name: "Hierarchical Residuals (HiRes)", family: "multistream", year: 2026,
+    authors: "Wang, Lu, Ma et al.", venue: "arXiv 2026",
+    arxiv: "2610.41711",
+    formula: "H_{k+1} = \\mathrm{LN}\\big(H_k + W^{\\uparrow}_k\\,B_k(W^{\\downarrow}_k H_k)\\big),\\quad H\\in\\mathbb R^{D},\\ B_k:\\ \\text{Pre-LN layers at width } d<D",
+    desc: "Decouples residual width from compute width. Blocks of ordinary Pre-LN layers run at width d, and a wider Post-Norm outer residual of width D links the blocks through learned read and write projections. Competitive with VWN, mHC and AttnRes at lower activation memory, with no special kernels. (Schematic form.)",
+    tags: ["residual width", "block-level", "Post-LN outer"]
   },
   {
     id: "ohc", name: "oHC", family: "multistream", year: 2026,
@@ -498,7 +566,17 @@ SD.tutorials = [
     title: "The Big LLM Architecture Comparison",
     source: "Sebastian Raschka · Ahead of AI",
     link: "https://magazine.sebastianraschka.com/p/the-big-llm-architecture-comparison", linkLabel: "Read article",
-    desc: "A side-by-side tour of recent open-weight LLM architectures, including where each one places its normalization layers and how deep and wide it is." }
+    desc: "A side-by-side tour of recent open-weight LLM architectures, including where each one places its normalization layers and how deep and wide it is." },
+  { group: "Learning Resources", type: "Article",
+    title: "Beyond Residual Connection",
+    source: "Purshow · Purshow's Notes",
+    link: "https://github.com/Purshow/Purshow_Notes/blob/main/Beyond_Residual/EN/Beyond_Residual_EN.pdf", linkLabel: "Read PDF",
+    desc: "Short notes that start from the Pre-Norm vs Post-Norm trade-off and walk through HC, mHC, iHC, gated residuals, Attention Residuals, xHC and VWN, with a table mapping each design to the recent LLMs that use it." },
+  { group: "Learning Resources", type: "Article",
+    title: "Beyond Residual Connection（中文版）",
+    source: "Purshow · Purshow's Notes",
+    link: "https://github.com/Purshow/Purshow_Notes/blob/main/Beyond_Residual/CN/Beyond_Residual_CN.pdf", linkLabel: "阅读 PDF",
+    desc: "The Chinese edition of the same notes." }
 ];
 
 /* ---------- Blogs: posts & notes on depth and residual streams ---------- */
