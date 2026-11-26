@@ -513,6 +513,15 @@ SD.methods = [
     tags: ["n streams", "HC family", "per-channel", "diffusion"]
   },
   {
+    id: "simplehc", name: "SimpleHC", family: "multistream", year: 2026,
+    authors: "Zhang, Qin, Zou et al.", venue: "arXiv 2026",
+    arxiv: "2611.05984",
+    code: "https://github.com/aHapBean/SimpleHC",
+    formula: "H_{l+1} = H_l + \\beta_l\\, F_l\\big(\\alpha_l^{\\top} H_l\\big),\\quad \\alpha_l = \\sigma(\\cdot),\\ \\beta_l = 2\\sigma(\\cdot),\\ A_l = I",
+    desc: "A component study of HC finds that learned read/write gating without mixing, or unconstrained mixing with fixed gates, each matches mHC alone. SimpleHC keeps only the gates, computes them once per group of sublayers and defers the write-back, cutting overhead to 2.4% over a plain residual while matching mHC on 15B and 30B MoE models.",
+    tags: ["n streams", "HC family", "no mixing", "efficient"]
+  },
+  {
     id: "hires", name: "Hierarchical Residuals (HiRes)", family: "multistream", year: 2026,
     authors: "Wang, Lu, Ma et al.", venue: "arXiv 2026",
     arxiv: "2610.41711",
